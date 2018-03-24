@@ -1,0 +1,6 @@
+[package]
+name = "simple-calc"
+version = "0.1.0"
+authors = ["Samuel Wilson <samWson@noreply.github.com>"]
+
+[dependencies]
