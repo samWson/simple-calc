@@ -4,6 +4,7 @@ use std::str::FromStr;
 enum Token {
     Integer(usize),
     Plus,
+    EOF,
 }
 
 #[derive(Debug)]
@@ -27,31 +28,37 @@ impl<'a> Interpreter<'a> {
             Some(value) => match value {
                 value if value.is_numeric() => return Ok(Token::Integer(usize::from_str(&value.to_string()).unwrap())),
                 '+' => return Ok(Token::Plus),
-                _ => Err(TokenError {message: "Error tokenizing character".to_string()}),
+                _ => Err(TokenError {message: "Error: attempted to tokenize unkown character".to_string()}),
             },
-            None => return Err(TokenError {message: "No value to tokenize".to_string()}),
+            None => return Ok(Token::EOF),
         }
     }
 }
 
 #[test]
-    fn test_get_next_token() {
-        let mut interpreter = Interpreter {
-            characters: "4+5".chars(),
-        };
+fn test_get_next_token() {
+    let mut interpreter = Interpreter {
+        characters: "4+5".chars(),
+    };
 
-        assert_eq!(interpreter.get_next_token().unwrap(), Token::Integer(4));
-        assert_eq!(interpreter.get_next_token().unwrap(), Token::Plus);
-        assert_eq!(interpreter.get_next_token().unwrap(), Token::Integer(5));
-    }
+    assert_eq!(interpreter.get_next_token().unwrap(), Token::Integer(4));
+    assert_eq!(interpreter.get_next_token().unwrap(), Token::Plus);
+    assert_eq!(interpreter.get_next_token().unwrap(), Token::Integer(5));
+    assert_eq!(interpreter.get_next_token().unwrap(), Token::EOF);
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let text = &args[1];
 
-    let interpreter = Interpreter {
+    let mut interpreter = Interpreter {
         characters: text.chars(),
     };
 
     println!("The provided expression is: {}", text);
+    println!("The tokens are:");
+    println!("{:?}", interpreter.get_next_token().unwrap());
+    println!("{:?}", interpreter.get_next_token().unwrap());
+    println!("{:?}", interpreter.get_next_token().unwrap());
+    println!("{:?}", interpreter.get_next_token().unwrap());
 }
