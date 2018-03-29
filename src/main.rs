@@ -3,6 +3,7 @@ use std::str::FromStr;
 #[derive(Debug, PartialEq)]
 enum Token {
     Integer(usize),
+    Plus,
 }
 
 #[derive(Debug)]
@@ -23,7 +24,11 @@ impl<'a> Interpreter<'a> {
         let current_char = self.characters.next();
 
         match current_char {
-            Some(value) => return Ok(Token::Integer(usize::from_str(&value.to_string()).unwrap())),
+            Some(value) => match value {
+                value if value.is_numeric() => return Ok(Token::Integer(usize::from_str(&value.to_string()).unwrap())),
+                '+' => return Ok(Token::Plus),
+                _ => Err(TokenError {message: "Error tokenizing character".to_string()}),
+            },
             None => return Err(TokenError {message: "No value to tokenize".to_string()}),
         }
     }
@@ -36,6 +41,8 @@ impl<'a> Interpreter<'a> {
         };
 
         assert_eq!(interpreter.get_next_token().unwrap(), Token::Integer(4));
+        assert_eq!(interpreter.get_next_token().unwrap(), Token::Plus);
+        assert_eq!(interpreter.get_next_token().unwrap(), Token::Integer(5));
     }
 
 fn main() {
