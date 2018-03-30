@@ -45,6 +45,17 @@ impl<'a> Interpreter<'a> {
             _ => panic!("Syntax error: Expected Token::Integer. Found {:?}", self.current_token),
         }
     }
+
+    /// eat_plus expects that the interpreters current token is a plus operator. If the current token
+    /// is correct the next token will be scanned and its Result returned. An incorrect token will result in a panic.
+    fn eat_plus(&mut self) -> Result<Token, TokenError> {
+        match self.current_token {
+            Token::Plus => {
+                return self.get_next_token();
+            },
+            _ => panic!("Syntax error: Expected Token::Plus. Found {:?}", self.current_token),
+        }
+    }
 }
 
 #[test]
@@ -70,6 +81,18 @@ fn test_eat_integer() {
     let token = interpreter.eat_integer().unwrap();
 
     assert_eq!(token, Token::Plus);
+}
+
+#[test]
+fn test_eat_plus() {
+    let mut interpreter = Interpreter {
+        characters: "5".chars(), // '3' and '+' have already been consumed from this iterator.
+        current_token: Token::Plus,
+    };
+
+    let token = interpreter.eat_plus().unwrap();
+
+    assert_eq!(token, Token::Integer(5));
 }
 
 fn main() {
