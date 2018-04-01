@@ -1,11 +1,39 @@
 use std::str::FromStr;
 
+/// Token represents a specific item type of a language with an associated value.
+/// Start can be considered as the begining of a stream of tokens, and can be used as
+/// an initial value. EOF is the end of a file i.e. then end of a token stream.
 #[derive(Debug, PartialEq)]
 enum Token {
     Start,
     Integer(usize),
     Plus,
     EOF,
+}
+
+impl Token {
+    /// get_value returns the value of a token in an Option enum. The returned value will be in a type appropriate for the token.
+    /// Token   | Value type
+    /// --------------------
+    /// Integer | usize
+    /// Plus    | char
+    /// Start   | No value
+    /// EOF     | No value
+    fn get_value(self) -> Option {
+        match self {
+            Token::Start => None,
+            Token::Integer(value) => Some(value),
+            Token::Plus => Some('+'),
+            Token::EOF => None,
+        }
+    }
+}
+
+#[test]
+fn test_get_value() {
+    let token = Token::Integer(5);
+
+    assert_eq!(token.get_value(), 5);
 }
 
 #[derive(Debug)]
@@ -19,6 +47,8 @@ struct Interpreter<'a> {
 }
 
 impl<'a> Interpreter<'a> {
+    /// expression interprets the characters field of the interpreter and evaluates the tokens. It returns the result of evaluating
+    /// the tokens. The expexted order of tokens is Integer->Plus->Integer. An unexpected token will or error will exit the program.
 
     /// get_next_token is a lexical analyser, also known as a scanner or tokenizer.
     /// It returns a Result containing either a Token or a TokenError.
@@ -84,15 +114,15 @@ fn test_eat_integer() {
 }
 
 #[test]
-fn test_eat_plus() {
+fn test_expression() {
     let mut interpreter = Interpreter {
-        characters: "5".chars(), // '3' and '+' have already been consumed from this iterator.
-        current_token: Token::Plus,
+        characters: "3+5".chars(),
+        current_token: Token::Start,
     };
 
-    let token = interpreter.eat_plus().unwrap();
+    let result = interpreter.expression();
 
-    assert_eq!(token, Token::Integer(5));
+    assert_eq!(result, 8);
 }
 
 fn main() {
